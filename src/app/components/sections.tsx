@@ -19,9 +19,12 @@ export default function Section() {
   const [loading, setLoading] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedCheckListId, setSelectedCheckListId] = useState<number | null>(null);
+  const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
+  const title=`${storedCourse.CourseTitle}`
   
 
   useEffect(() => {
+    console.log(storedCourse)
     const fetchCourses = async () => {
       setLoading(true);
       try {
@@ -61,7 +64,7 @@ export default function Section() {
     <div className="flex min-h-screen">
       <div className="flex-1">
         <main className="p-6">
-          <h2 className="text-2xl font-semibold mb-6">Teacher Dashboard</h2>
+          <h2 className="text-2xl font-semibold mb-6"> Course : {title}</h2>
 
           {error ? (
             <p className="text-red-500">Error: {error}</p>
