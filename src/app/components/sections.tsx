@@ -20,11 +20,9 @@ export default function Section() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedCheckListId, setSelectedCheckListId] = useState<number | null>(null);
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
-  const title=`${storedCourse.CourseTitle}`
-  
+  const title = `${storedCourse.CourseTitle}`;
 
   useEffect(() => {
-    console.log(storedCourse)
     const fetchCourses = async () => {
       setLoading(true);
       try {
@@ -46,13 +44,12 @@ export default function Section() {
 
   const handleViewDetails = (checkListId: number) => {
     setSelectedCheckListId(checkListId);
-    localStorage.getItem('CourseInSOSId')
     setShowModal(true);
   };
 
   const handleUploadFile = (checkListId: number) => {
     setSelectedCheckListId(checkListId);
-    // Trigger file upload logic here if needed
+    setShowModal(true); // Show the modal for file upload
   };
 
   const handleCloseModal = () => {
@@ -87,17 +84,15 @@ export default function Section() {
                       <td className="px-4 py-2 border-b">{cl.Name}</td>
                       <td className="px-4 py-2 border-b">
                         <div className="flex gap-2">
-                          {/* Button for Uploading File */}
                           <button
                             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                            onClick={() => handleUploadFile(cl.Id)} // Trigger Upload File logic
+                            onClick={() => handleUploadFile(cl.Id)} // Show upload modal
                           >
                             Upload File
                           </button>
-                          {/* Button for Viewing Details */}
                           <button
                             className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                            onClick={() => handleViewDetails(cl.Id)} // Trigger View Details logic
+                            onClick={() => handleViewDetails(cl.Id)} // Show view details modal
                           >
                             View Details
                           </button>
@@ -111,24 +106,14 @@ export default function Section() {
           )}
         </main>
       </div>
-      {/* Modal Component for Viewing Details */}
-      {selectedCheckListId !== null && showModal && (
-        <Modal
-          showModal={showModal}
-          onClose={handleCloseModal}
-          courseId={0} // Replace with actual courseId if needed
-          checkListId={selectedCheckListId}
-          courseInSOSId={courseInSoSId}
-        />
-      )}
+
       {/* Upload File Modal */}
       {showModal && selectedCheckListId !== null && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <UploadFile
               folderCheckListId={selectedCheckListId}
-              onSuccess={handleCloseModal} // Close modal after succes
-             // Close modal on cancel
+              onSuccess={handleCloseModal} // Close modal after successful upload
             />
           </div>
         </div>
