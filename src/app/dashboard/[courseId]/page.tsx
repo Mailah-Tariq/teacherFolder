@@ -13,6 +13,7 @@ interface Section {
   CourseInSOSId: number;
   CourseId: number;
   CourseCode: string;
+  AllocationId:Number;
 }
 
 export default function CourseDetailPage({

@@ -5,7 +5,8 @@ interface ModalProps {
   onClose: () => void;
   courseId: number;
   checkListId: number;
-  courseInSOSId:number;
+  courseInSOSId: number;
+  children?: React.ReactNode;
 }
 
 interface File {

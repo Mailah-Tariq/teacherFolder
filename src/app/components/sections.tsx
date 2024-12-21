@@ -5,9 +5,15 @@ import { Header } from "./header";
 import { Sidebar } from "./sidebar";
 import { Modal } from "./modal";
 import UploadFile from "./UploadFile";
+
 interface CheckList {
   Id: number;
   Name: string;
+}
+
+interface FileDetail {
+  DisplayName: string;
+  FilePath: string;
 }
 
 export default function Section() {
@@ -17,10 +23,28 @@ export default function Section() {
   const API_URL = `${localStorage.getItem("baseURL")}teacher/GetFolderCheckList`;
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
+  const [showDetailsModal, setShowDetailsModal] = useState<boolean>(false);
   const [selectedCheckListId, setSelectedCheckListId] = useState<number | null>(null);
+  const [fileDetails, setFileDetails] = useState<FileDetail[]>([]); // State to store file details
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
   const title = `${storedCourse.CourseTitle}`;
+
+  // Fetch file details when a checklist item is selected
+  const fetchFileDetails = async (courseId: number, checkListId: number) => {
+    const API_FILES_URL = `${localStorage.getItem("baseURL")}teacher/GetLectureFiles?courseId=${courseId}&checkListId=${checkListId}`;
+
+    try {
+      const response = await fetch(API_FILES_URL);
+      if (!response.ok) {
+        throw new Error("Failed to fetch file details.");
+      }
+      const data: FileDetail[] = await response.json();
+      setFileDetails(data); // Store the retrieved files
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -44,16 +68,21 @@ export default function Section() {
 
   const handleViewDetails = (checkListId: number) => {
     setSelectedCheckListId(checkListId);
-    setShowModal(true);
+    setShowDetailsModal(true); // Show details modal
+    if (storedCourse && storedCourse.CourseId) {
+      // Fetch file details when the "View Details" button is clicked
+      fetchFileDetails(storedCourse.CourseId, checkListId);
+    }
   };
 
   const handleUploadFile = (checkListId: number) => {
     setSelectedCheckListId(checkListId);
-    setShowModal(true); // Show the modal for file upload
+    setShowUploadModal(true); // Show upload file modal
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+  const handleCloseModals = () => {
+    setShowUploadModal(false);
+    setShowDetailsModal(false);
     setSelectedCheckListId(null);
   };
 
@@ -107,13 +136,46 @@ export default function Section() {
         </main>
       </div>
 
+      {/* View Details Modal */}
+      {showDetailsModal && selectedCheckListId !== null && (
+        <Modal
+          showModal={showDetailsModal}
+          onClose={handleCloseModals}
+          courseId={storedCourse.CourseId} // Use the actual courseId from storedCourse
+          checkListId={selectedCheckListId}
+          courseInSOSId={courseInSoSId}
+        >
+          <div>
+            <h3 className="text-xl font-semibold">Uploaded Files</h3>
+            <ul>
+              {fileDetails.length > 0 ? (
+                fileDetails.map((file, index) => (
+                  <li key={index} className="my-2">
+                    <a
+                      href={file.FilePath}
+                      className="text-blue-500"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {file.DisplayName}
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <p>No files found for this checklist.</p>
+              )}
+            </ul>
+          </div>
+        </Modal>
+      )}
+
       {/* Upload File Modal */}
-      {showModal && selectedCheckListId !== null && (
+      {showUploadModal && selectedCheckListId !== null && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <UploadFile
               folderCheckListId={selectedCheckListId}
-              onSuccess={handleCloseModal} // Close modal after successful upload
+              onSuccess={handleCloseModals} // Close modal after successful upload
             />
           </div>
         </div>

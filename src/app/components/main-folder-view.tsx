@@ -32,6 +32,7 @@ export function MainFolderView() {
   const [lectureFiles, setLectureFiles] = useState<LectureFile[]>([]); // Store the fetched lecture files
   const [isDetailsOpen, setIsDetailsOpen] = useState(false); // Manage the details modal visibility
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
+  const title = `${storedCourse.CourseTitle}`;
   const courseId = storedCourse?.courseId ?? null; // Default to null if not found
   console.log(courseId); // Verify the value of courseId
 
@@ -94,7 +95,7 @@ export function MainFolderView() {
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-xl font-semibold">Main Folder</h2>
+        <h2 className="text-xl font-semibold">Main Folder of {title}</h2>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border">
