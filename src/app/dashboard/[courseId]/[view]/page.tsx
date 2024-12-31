@@ -5,6 +5,7 @@ import { CLOsView } from "../../../components/clos-view"
 import { CourseTopicsView } from "../../../components/course-topics-view"
 import  Section  from "../../../components/sections"
 import { SectionAndTopics } from "@/app/components/section-and-topics"
+import AssignmentDetails from "@/app/components/assignment-detail"
 
 export default function CourseDetailPage({ 
   params 
@@ -23,6 +24,8 @@ export default function CourseDetailPage({
           return <Section />
      case 'section-and-topics':
             return <SectionAndTopics/>
+      case 'assignment-detail':
+        return <AssignmentDetails/>
       default:
         return <MainFolderView />
     }

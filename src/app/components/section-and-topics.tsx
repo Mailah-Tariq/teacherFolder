@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '../components/ui/card';
-
-// interface Section {
-//   SectionTitle: string;
-//   CourseInSOSId: number;
-//   CourseId: number;
-//   CourseCode: string;
-// }
+import Section from './sections';
+interface Section {
+  SectionTitle: string;
+  SectionId:number;
+  CourseInSOSId: number;
+  CourseId: number;
+  CourseCode: string;
+  AllocationId:number;
+}
 
 interface SubTopic {
   SubTopicId: number;
@@ -29,7 +31,8 @@ export function SectionAndTopics() {
   const [error, setError] = useState<string | null>(null);
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
   const title = `${storedCourse.CourseTitle}`;
-
+  const AllocationId =localStorage.getItem('AllocationId');
+  const SectionId =localStorage.getItem('SectionId');
   // State to track checkboxes for topics, subtopics, and sections
   const [topicSections, setTopicSections] = useState<{
     topicId: number;
@@ -40,53 +43,62 @@ export function SectionAndTopics() {
 
   useEffect(() => {
     console.log(storedCourse)
-    const fetchSectionsAndTopics = async () => {
-      try {
-        const teacherId = localStorage.getItem('userId');
-        const courseInSOSId = localStorage.getItem('CourseInSOSId');
+ const fetchSectionsAndTopics = async () => {
+  try {
+    const teacherId = localStorage.getItem('userId');
+    const courseInSOSId = localStorage.getItem('CourseInSOSId');
 
-        // Fetch sections
-        const sectionResponse = await fetch(
-          `${localStorage.getItem('baseURL')}teacher/GetTeacherCourseSections?teacherId=${teacherId}&courseInSOSId=${courseInSOSId}`
-        );
+    // Fetch sections
+    const sectionResponse = await fetch(
+      `${localStorage.getItem('baseURL')}teacher/GetTeacherCourseSections?teacherId=${teacherId}&courseInSOSId=${courseInSOSId}`
+    );
 
-        if (!sectionResponse.ok) {
-          throw new Error('Failed to fetch sections.');
-        }
+    if (!sectionResponse.ok) {
+      throw new Error('Failed to fetch sections.');
+    }
 
-        const sectionData: Section[] = await sectionResponse.json();
-        setSections(sectionData);
+    const sectionData: Section[] = await sectionResponse.json();
+    setSections(sectionData);
 
-        // Fetch topics
-        const topicResponse = await fetch(
-          `${localStorage.getItem('baseURL')}teacher/GetTopicsByCourseCode?CourseCode=${localStorage.getItem('CourseCode')}`
-        );
+    // Set AllocationId if sections exist
+    if (sectionData.length > 0) {
+      localStorage.setItem('AllocationId', sectionData[0].AllocationId.toString());
+      localStorage.setItem('SectionId', sectionData[0].SectionId.toString());
+    } else {
+      console.error('No sections found to set AllocationId');
+    }
 
-        if (!topicResponse.ok) {
-          throw new Error('Failed to fetch topics.');
-        }
+    // Fetch topics
+    const topicResponse = await fetch(
+      `${localStorage.getItem('baseURL')}teacher/GetTopicsByCourseCode?CourseCode=${localStorage.getItem('CourseCode')}`
+    );
 
-        const topicData: Topic[] = await topicResponse.json();
-        setTopics(topicData);
+    if (!topicResponse.ok) {
+      throw new Error('Failed to fetch topics.');
+    }
 
-        if (topicData.length === 0) {
-          alert('No topics found for this course');
-        }
+    const topicData: Topic[] = await topicResponse.json();
+    setTopics(topicData);
 
-        // Initialize state for all checkboxes
-        const initialState = topicData.map((topic) => ({
-          topicId: topic.TopicId,
-          isChecked: false, // Initially unchecked topic
-          checkedSections: new Set<string>(),
-          checkedSubTopics: new Set<number>(),
-        }));
-        setTopicSections(initialState);
-      } catch (error: any) {
-        setError(error.message || 'An unknown error occurred.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (topicData.length === 0) {
+      alert('No topics found for this course');
+    }
+
+    // Initialize state for all checkboxes
+    const initialState = topicData.map((topic) => ({
+      topicId: topic.TopicId,
+      isChecked: false, // Initially unchecked topic
+      checkedSections: new Set<string>(),
+      checkedSubTopics: new Set<number>(),
+    }));
+    setTopicSections(initialState);
+  } catch (error: any) {
+    setError(error.message || 'An unknown error occurred.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
     fetchSectionsAndTopics();
   }, []);
@@ -100,7 +112,7 @@ export function SectionAndTopics() {
   ) => {
     try {
       const response = await fetch(
-        `${localStorage.getItem('baseURL')}teacher/SetTopicFlag?topicId=${topicId}&allocationId=${allocationId}&programId=${programId}&sectionId=${sectionId || ''}`,
+        `${localStorage.getItem('baseURL')}teacher/SetTopicFlag?topicId=${topicId}&allocationId=${allocationId}&programId=${programId}&sectionId=${SectionId || ''}`,
         {
           method: 'GET',
         }
@@ -114,7 +126,7 @@ export function SectionAndTopics() {
     }
   };
 
-  const handleSectionCheckboxChange = async (topicId: number, sectionTitle: string) => {
+  const handleSectionCheckboxChange = async (topicId: number, sectionTitle: string,AllocationId:number) => {
     setTopicSections((prev) => {
       const updatedSections = prev.map((topic) => {
         if (topic.topicId === topicId) {
@@ -126,10 +138,11 @@ export function SectionAndTopics() {
           }
 
           // Convert allocationId and programId from string to number
-          const allocationId = parseInt(localStorage.getItem('allocationId') || '0', 10); // Convert to number
+         // const allocationId = parseInt(localStorage.getItem('allocationId') || '0'); // Convert to number
           const programId = parseInt(`${storedCourse.ProgramId}`); // Convert to number
 
-          setTopicFlag(topicId, allocationId, programId, sectionTitle);
+          console.log(`Allocation:${AllocationId}`);
+          setTopicFlag(topicId, AllocationId, programId, sectionTitle);
 
           return { ...topic, checkedSections: updatedCheckedSections };
         }
@@ -152,10 +165,12 @@ export function SectionAndTopics() {
           }
 
           // Convert allocationId and programId from string to number
-          const allocationId = parseInt(localStorage.getItem('allocationId') || '0', 10); // Convert to number
+         // const allocationId = parseInt(localStorage.getItem('allocationId') || '0', 10); // Convert to number
           const programId = parseInt(`${storedCourse.programId}`); // Convert to number
 
-          setTopicFlag(topicId, allocationId, programId); // API call to set the flag
+
+          //have to call here the subtopic flag
+          // setTopicFlag(topicId, AllocationId, programId); // API call to set the flag
 
           return { ...topic, checkedSubTopics: updatedCheckedSubTopics };
         }
@@ -219,8 +234,8 @@ export function SectionAndTopics() {
                           checked={topicSections
                             .find((t) => t.topicId === topic.TopicId)
                             ?.checkedSections.has(section.SectionTitle)}
-                          onChange={() =>
-                            handleSectionCheckboxChange(topic.TopicId, section.SectionTitle)
+                          onClick={() =>
+                            handleSectionCheckboxChange(topic.TopicId,section.SectionTitle, section.AllocationId)
                           }
                           className="h-4 w-4"
                         />

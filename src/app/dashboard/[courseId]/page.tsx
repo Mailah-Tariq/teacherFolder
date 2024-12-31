@@ -35,6 +35,7 @@ export default function CourseDetailPage({
         console.log(`courseInSOSId=${courseInSoS}`);
         const response = await fetch(
           `${localStorage.getItem('baseURL')}teacher/GetTeacherCourseSections?teacherId=${localStorage.getItem('userId')}&courseInSOSId=${courseInSoS}`
+          
         );
         if (response.ok) {
           const data: Section[] = await response.json(); // Ensure the API response matches the Section[] type
@@ -50,9 +51,17 @@ export default function CourseDetailPage({
     fetchSections();
   }, []);
 
-  const handleSectionClick = (sectionTitle: string) => {
-    localStorage.setItem('courseInSOSId', courseInSoS.toString()); // Save to localStorage
+  const handleClick = (sectionTitle: string) => {
+    localStorage.setItem('courseInSOSId', courseInSoS.toString());
     router.push(`/dashboard/${courseInSoS}/${sectionTitle}`);
+  };
+
+  const handleSectionClick = (section: Section) => {
+    localStorage.setItem('courseInSOSId', courseInSoS.toString());
+    localStorage.setItem('allocationId', section.AllocationId.toString());
+    
+    
+    router.push(`/dashboard/${courseInSoS}/section`);
   };
 
 
@@ -72,7 +81,7 @@ export default function CourseDetailPage({
           {/* Course Sections */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Predefined Sections */}
-            <div onClick={() => handleSectionClick("main-folder")}>
+            <div onClick={() => handleClick("main-folder")}>
               <CourseSection
                 icon={<Folder className="w-6 h-6 text-yellow-500" />}
                 title="Main Folder"
@@ -80,7 +89,7 @@ export default function CourseDetailPage({
                 courseInSoSId={courseInSoS}
               />
             </div>
-            <div onClick={() => handleSectionClick("clos")}>
+            <div onClick={() => handleClick("clos")}>
               <CourseSection
                 icon={<Settings className="w-6 h-6 text-purple-500" />}
                 title="CLOs"
@@ -88,7 +97,7 @@ export default function CourseDetailPage({
                 courseInSoSId={courseInSoS}
               />
             </div>
-            <div onClick={() => handleSectionClick("topics")}>
+            <div onClick={() => handleClick("topics")}>
               <CourseSection
                 icon={<ListTodo className="w-6 h-6 text-emerald-500" />}
                 title="Course Topics"
@@ -97,7 +106,7 @@ export default function CourseDetailPage({
               />
             </div>
                 {/* New Cover Topics Section */}
-            <div onClick={() => handleSectionClick("section-and-topics")}>
+            <div onClick={() => handleClick("section-and-topics")}>
               <CourseSection
                 icon={<BookOpen className="w-6 h-6 text-indigo-500" />}
                 title="Cover Topics"
@@ -109,7 +118,7 @@ export default function CourseDetailPage({
   {/* Dynamic Sections */}
         {sections.map((section, index) => (
               
-           <div onClick={() => handleSectionClick("section")}>
+           <div onClick={() => handleSectionClick(section)}>
               <CourseSection
                 icon={<ListTodo className="w-6 h-6 text-emerald-500" />}
                 title={`Section ${section.SectionTitle}`}

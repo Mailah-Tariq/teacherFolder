@@ -44,8 +44,6 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   const [folderContents, setFolderContents] = useState<FolderContent[]>([]);
-  const [isUploadOpen, setIsUploadOpen] = useState(false); // State to manage modal visibility
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null); // Store selected FolderCheckListId
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
   // Fetch the data from API
   useEffect(() => {
