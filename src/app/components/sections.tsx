@@ -51,10 +51,12 @@ export default function Section() {
 
 
   const handleItemClick = (id: number) => {
-    const sampleId = localStorage.getItem('sampleId');
-    if (id.toString() === sampleId) {
+    const checklistId = localStorage.getItem('sampleId');
+    localStorage.setItem("FolderChecklistId",checklistId ?? "");
+    if (id.toString() === checklistId) {
       router.push(`/details/samples?id=${id}`); // Navigate to the details page if ID matches the Sample ID
-    } else {
+    } else 
+    {
       setMessage('This checklist is not available for detailed view.'); // Show error message for invalid IDs
     }
   };

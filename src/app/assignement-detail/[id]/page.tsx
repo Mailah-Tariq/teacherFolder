@@ -15,28 +15,9 @@ export default function AssignmentScreen() {
   const [error, setError] = useState<string | null>(null);
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
   const title = `${storedCourse.CourseTitle}`;
-  const API_URL = `${localStorage.getItem('baseURL')}teacher/GetAssignmentKeys`;
 
-  useEffect(() => {
-    const fetchAssignmentKeys = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch assignment keys.');
-        const data: AssignmentKey[] = await response.json();
 
-        // Filter out unwanted data, if necessary (in this case, keys like "Best", "Average", "Worst" are not expected in the data)
-        setAssignmentKeys(data);
-      } catch (err) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAssignmentKeys();
-  }, []);
+ 
 
   const handleUploadClick = (S1Id: number, S1Name: string) => {
     console.log(`Upload clicked for ${S1Name} (ID: ${S1Id})`);
@@ -64,6 +45,7 @@ export default function AssignmentScreen() {
           <thead>
             <tr className="bg-gray-100">
               <th className="px-4 py-2 border-b text-left">Assignment Name</th>
+              <th className="px-4 py-2 border-b text-left">File Path</th>
               <th className="px-4 py-2 border-b text-left">Actions</th>
             </tr>
           </thead>

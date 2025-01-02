@@ -11,6 +11,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderCheckListId, onSuccess })
   const [displayName, setDisplayName] = useState<string>("");
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const courseInSOSId = localStorage.getItem('CourseInSOSId') || "";
+ 
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,8 +35,8 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderCheckListId, onSuccess })
     formData.append("CourseInSOSId", courseInSOSId.toString());
     formData.append("DisplayName", displayName);
     formData.append("File", file);
-  
-    console.log("FormData object:", formData);  // Log FormData to make sure file is attached
+    
+    console.log("FormData object:", formData);  
   
     try {
       const response = await fetch("https://localhost:44338/api/folder/UploadFolderContent", {
