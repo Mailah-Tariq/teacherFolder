@@ -26,18 +26,24 @@ export default function Section() {
         if (!response.ok) throw new Error('Failed to fetch checklist.');
         const data: CheckList[] = await response.json();
         setCheckList(data);
-        
-
-        // Save the ID of the "Sample" checklist in local storage
+  
+        // Save the IDs of specific checklists
         const sampleChecklist = data.find((item) =>
           item.Name.toLowerCase().includes('sample')
         );
+        const assignmentChecklist = data.find((item) =>
+          item.Name.toLowerCase().includes('assignment')
+        );
+  
         if (sampleChecklist) {
           localStorage.setItem('sampleId', sampleChecklist.Id.toString());
           localStorage.setItem('sampleName', sampleChecklist.Name);
         }
-        
-
+        if (assignmentChecklist) {
+          localStorage.setItem('assignmentId', assignmentChecklist.Id.toString());
+          localStorage.setItem('assignmentName', assignmentChecklist.Name);
+        }
+  
         setLoading(false);
       } catch (err) {
         setError((err as Error).message);
@@ -55,9 +61,11 @@ export default function Section() {
     localStorage.setItem("FolderChecklistId",checklistId ?? "");
     if (id.toString() === checklistId) {
       router.push(`/details/samples?id=${id}`); // Navigate to the details page if ID matches the Sample ID
-    } else 
+    } else  if (id.toString() === localStorage.getItem('assignmentId')) {
+      router.push(`/assignement-detail/${id}`); 
+    } else
     {
-      setMessage('This checklist is not available for detailed view.'); // Show error message for invalid IDs
+      setMessage('This checklist is not available for detailed view.'); 
     }
   };
 

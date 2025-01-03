@@ -150,34 +150,35 @@ export default function DetailsPage({ params }: { params: Promise<{ id: string }
                     </tr>
                   </thead>
                   <tbody>
-                    {item.Values.map((value) => (
-                      <tr key={value.S2Id}>
-                        <td className="border px-4 py-2">{value.S2Name}</td>
-                        <td className="border px-4 py-2">
-                          {value.FilePath ? (
-                            <a
-                              href={value.FilePath}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 underline"
-                            >
-                              View File
-                            </a>
-                          ) : (
-                            'No File'
-                          )}
-                        </td>
-                        <td className="border px-4 py-2">
-                          <button
-                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                            onClick={() => handleUploadClick(value.S2Id, value.S2Name)}
-                          >
-                            Upload
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
+  {item.Values.map((value) => (
+    <tr key={value.S2Id}>
+      <td className="border px-4 py-2">{value.S2Name}</td>
+      <td className="border px-4 py-2">
+        {value.FilePath ? (
+          <a
+            href={value.FilePath}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline hover:text-blue-700"
+          >
+            View Details
+          </a>
+        ) : (
+          <span className="text-gray-500">No File</span>
+        )}
+      </td>
+      <td className="border px-4 py-2">
+        <button
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          onClick={() => handleUploadClick(value.S2Id, value.S2Name)}
+        >
+          Upload
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
                 </table>
               </div>
             ))
