@@ -34,7 +34,15 @@ export default function Section() {
         const assignmentChecklist = data.find((item) =>
           item.Name.toLowerCase().includes('assignment')
         );
-  
+        const quizChecklist = data.find((item) =>
+          item.Name.toLowerCase().includes('quiz')
+        );
+        const examChecklist = data.find((item) =>
+          item.Name.toLowerCase().includes('exam')
+        );
+        const solutionChecklist = data.find((item) =>
+          item.Name.toLowerCase().includes('solution')
+        );
         if (sampleChecklist) {
           localStorage.setItem('sampleId', sampleChecklist.Id.toString());
           localStorage.setItem('sampleName', sampleChecklist.Name);
@@ -43,7 +51,18 @@ export default function Section() {
           localStorage.setItem('assignmentId', assignmentChecklist.Id.toString());
           localStorage.setItem('assignmentName', assignmentChecklist.Name);
         }
-  
+        if (quizChecklist) {
+          localStorage.setItem('quizId', quizChecklist.Id.toString());
+          localStorage.setItem('quizName', quizChecklist.Name);
+        }
+        if (examChecklist) {
+          localStorage.setItem('examId', examChecklist.Id.toString());
+          localStorage.setItem('examName', examChecklist.Name);
+        }
+        if (solutionChecklist) {
+          localStorage.setItem('solutionId', solutionChecklist.Id.toString());
+          localStorage.setItem('solutionName', solutionChecklist.Name);
+        }
         setLoading(false);
       } catch (err) {
         setError((err as Error).message);
@@ -63,6 +82,12 @@ export default function Section() {
       router.push(`/details/samples?id=${id}`); // Navigate to the details page if ID matches the Sample ID
     } else  if (id.toString() === localStorage.getItem('assignmentId')) {
       router.push(`/assignement-detail/${id}`); 
+    } else if (id.toString() === localStorage.getItem('quizId')) {
+      router.push(`/quiz-detail/${id}`); 
+    } else if (id.toString() === localStorage.getItem('examId')) {
+      router.push(`/exam-detail/${id}`); 
+    } else if (id.toString() === localStorage.getItem('solutionId')) {
+      router.push(`/solution-detail/${id}`); 
     } else
     {
       setMessage('This checklist is not available for detailed view.'); 
