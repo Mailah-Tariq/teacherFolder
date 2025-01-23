@@ -41,12 +41,7 @@ export function Sidebar({ className }: SidebarProps) {
                 folder allocation
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
-              <Link href="#">
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Completed Topics
-              </Link>
-            </Button>
+           
             <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
               <Link href="#">
                 <FolderClosed className="mr-2 h-4 w-4" />
@@ -59,12 +54,7 @@ export function Sidebar({ className }: SidebarProps) {
                 Incompleted Folders
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
-              <Link href="#">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Check Courses
-              </Link>
-            </Button>
+          
           </div>
         </div>
       </div>

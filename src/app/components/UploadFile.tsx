@@ -31,10 +31,11 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderCheckListId, onSuccess })
     }
   
     const formData = new FormData();
-    formData.append("FolderCheckListId", folderCheckListId.toString());
-    formData.append("CourseInSOSId", courseInSOSId.toString());
     formData.append("DisplayName", displayName);
-    formData.append("File", file);
+     formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
+     formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
+     formData.append('FolderCheckListId', localStorage.getItem('FolderChecklistId') ?? '');
+     formData.append('File', file);
     
     console.log("FormData object:", formData);  
   

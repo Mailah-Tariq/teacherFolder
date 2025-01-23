@@ -21,14 +21,14 @@ import {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">Id</TableHead>
+           
             <TableHead>Description</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {plos.map((plo) => (
             <TableRow key={plo.id}>
-              <TableCell>{plo.id}</TableCell>
+             
               <TableCell>{plo.description}</TableCell>
             </TableRow>
           ))}

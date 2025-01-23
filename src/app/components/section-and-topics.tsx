@@ -105,6 +105,7 @@ export function SectionAndTopics() {
 
   // Function to call the SetTopicFlag API
   const setTopicFlag = async (
+    actionName:string,
     topicId: number,
     allocationId: number,
     programId: number,
@@ -112,7 +113,7 @@ export function SectionAndTopics() {
   ) => {
     try {
       const response = await fetch(
-        `${localStorage.getItem('baseURL')}teacher/SetTopicFlag?topicId=${topicId}&allocationId=${allocationId}&programId=${programId}&sectionId=${SectionId || ''}`,
+        `${localStorage.getItem('baseURL')}teacher/${actionName}?topicId=${topicId}&allocationId=${allocationId}&programId=${programId}&sectionId=${SectionId || ''}`,
         {
           method: 'GET',
         }
@@ -128,21 +129,23 @@ export function SectionAndTopics() {
 
   const handleSectionCheckboxChange = async (topicId: number, sectionTitle: string,AllocationId:number) => {
     setTopicSections((prev) => {
+        // Convert allocationId and programId from string to number
+         // const allocationId = parseInt(localStorage.getItem('allocationId') || '0'); // Convert to number
+         const programId = parseInt(`${storedCourse.ProgramId}`); // Convert to number
+
+         console.log(`Allocation:${AllocationId}`);
       const updatedSections = prev.map((topic) => {
         if (topic.topicId === topicId) {
           const updatedCheckedSections = new Set(topic.checkedSections);
           if (updatedCheckedSections.has(sectionTitle)) {
             updatedCheckedSections.delete(sectionTitle);
+            setTopicFlag("UnSetTopicFlag",topicId, AllocationId, programId, sectionTitle);
           } else {
             updatedCheckedSections.add(sectionTitle);
+            setTopicFlag("SetTopicFlag",topicId, AllocationId, programId, sectionTitle);
           }
 
-          // Convert allocationId and programId from string to number
-         // const allocationId = parseInt(localStorage.getItem('allocationId') || '0'); // Convert to number
-          const programId = parseInt(`${storedCourse.ProgramId}`); // Convert to number
-
-          console.log(`Allocation:${AllocationId}`);
-          setTopicFlag(topicId, AllocationId, programId, sectionTitle);
+        
 
           return { ...topic, checkedSections: updatedCheckedSections };
         }

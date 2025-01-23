@@ -69,7 +69,7 @@ export default function QuizDetail() {
     const UPLOAD_API_URL = `${localStorage.getItem('baseURL')}/Folder/UploadFolderContent`;
 
     const formData = new FormData();
-    formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
+    // formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
     formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
     formData.append('FolderCheckListId', localStorage.getItem('FolderChecklistId') ?? '');
     formData.append('DisplayName', file.name);
@@ -151,7 +151,7 @@ export default function QuizDetail() {
                     </button>
                   </div>
                 </div>
-                {item.Values.some((subItem) => subItem.FilePath) && (
+                {item.Key.FilePathKey && (
                   <button
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                     onClick={() => {

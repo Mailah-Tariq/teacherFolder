@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 import { useEffect, useState } from "react"
 import { Bell, FolderPlus, FolderMinus } from "lucide-react"
 
@@ -25,124 +24,76 @@ interface Student {
   id: number
   name: string
 }
+interface Course {
+  title: string;
+  href: string;
+}
+// Define the FolderAllocationProps to accept a course prop
+interface FolderAllocationProps {
+  course: Course;  // Use the course type here
+}
 
 interface Program {
   Title: string
   ShortName: string
 }
 
-interface TeacherResponse {
-  Teacherid: string
-  TeacherName: string
+interface Teacher {
+  Id: number
+  Name: string
+  ProgramShortName: string
+  ProgramTitle: string
+  IsActive: boolean
 }
 
 const students: Student[] = [
-  { id: 0, name: "Ali Bin Tahir" },
+  { id: 1, name: "Ali Bin Tahir" },
+  { id: 2, name: "John Doe" },
+  { id: 3, name: "Jane Smith" }
 ]
 
-export function FolderAllocation() {
+const programs: Program[] = [
+  { Title: "Bachelor of Computer Science", ShortName: "BCS" },
+  { Title: "Bachelor of Information Technology", ShortName: "BAI" },
+  { Title: "Bachelor of Software Engineering", ShortName: "BSE" }
+]
+
+export function FolderAllocation({ course }: FolderAllocationProps) {
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState("")
   const [allocatedFolders, setAllocatedFolders] = useState<number[]>([])
-  const [programs, setPrograms] = useState<Program[]>([])
-  const [selectedProgramShortName, setSelectedProgramShortName] = useState<string>("")
-  const [selectedProgramTitle, setSelectedProgramTitle] = useState<string>("")
-  const [courseName, setCourseName] = useState("Loading...")
-  const [teacherName, setTeacherName] = useState<string>("")
-  const [teacherid, setTeacherid] = useState<string>("")
+  const [selectedProgramShortName, setSelectedProgramShortName] = useState<string>("BCS")
+  const [selectedProgramTitle, setSelectedProgramTitle] = useState<string>("Bachelor of Computer Science")
+  const [teachers, setTeachers] = useState<Teacher[]>([])
 
-  const courseCode = "CSC-103" // Static or dynamic course code
-  const courseId = "30"
+  const courseId = 30  // Example courseId, make sure it's dynamic or passed in
 
-  // Fetch Course Name
   useEffect(() => {
-    const fetchCourseName = async () => {
+    const fetchTeachers = async () => {
       try {
-        const response = await fetch(
-          `https://localhost:44338/api/hod/GetCourseNameByCourseCode?courseCode=${courseCode}`
-        )
+        const response = await fetch(`https://localhost:44338/api/hod/TeachersForCourse?courseId=${courseId}`)
         const data = await response.json()
-        setCourseName(data.title)
+        setTeachers(data)
       } catch (error) {
-        console.error("Failed to fetch course name:", error)
+        console.error("Error fetching teachers:", error)
       }
     }
-    fetchCourseName()
-  }, [courseCode])
 
-  // Fetch Programs based on Course Code
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const response = await fetch(
-          `https://localhost:44338/api/hod/GetProgramsByCourseCode?courseCode=${courseCode}`
-        )
-        const data: Program[] = await response.json()
-        setPrograms(data)
-        if (data.length > 0) {
-          setSelectedProgramShortName(data[0].ShortName)
-          setSelectedProgramTitle(data[0].Title)
-        }
-      } catch (error) {
-        console.error("Failed to fetch programs:", error)
-      }
-    }
-    fetchPrograms()
-  }, [courseCode])
-
-  // Fetch Teacher Name based on Program and Course
-  useEffect(() => {
-    const fetchTeacherName = async () => {
-      if (courseId) {
-        try {
-          const response = await fetch(
-            `https://localhost:44338/api/hod/GetAssignedFoldersForTeacher?programId=3&courseId=${courseId}`
-          )
-          const data: TeacherResponse[] = await response.json()
-          setTeacherName(data[0].TeacherName || "No teacher assigned")
-          setTeacherid(data[0].Teacherid || "No teacher id assigned")
-
-        } catch (error) {
-          console.error("Failed to fetch teacher name:", error)
-          setTeacherName("Teacher information unavailable")
-        }
-      }
-    }
-    fetchTeacherName()
+    fetchTeachers()
   }, [courseId])
 
   // Handle Delete Folder Allocation
-  const handleDeleteFolder = async () => {
-    // Use the AllocationId you provided
-    const allocationId = 3771 // Static allocation ID from your example
+  const handleDeleteFolder = (studentId: number) => {
+    const allocationId = 3771 // Static allocation ID for this example
 
-    try {
-      const response = await fetch(
-        `https://localhost:44338/api/hod/DeleteAssignedFolders?allocationId=${allocationId}`, 
-        {
-          method: 'DELETE'
-        }
-      )
+    // Update local state to reflect deletion
+    setAllocatedFolders(prevAllocated =>
+      prevAllocated.filter(id => id !== allocationId)
+    )
 
-      if (response.ok) {
-        // Update local state to reflect deletion
-        setAllocatedFolders(prevAllocated => 
-          prevAllocated.filter(id => id !== allocationId)
-        )
-
-        // Show success toast
-        setToastMessage("Folder allocation successfully removed")
-        setShowToast(true)
-      } else {
-        // Handle error scenario
-        setToastMessage("Failed to remove folder allocation")
-        setShowToast(true)
-      }
-    } catch (error) {
-      console.error("Error deleting folder allocation:", error)
-      setToastMessage("An error occurred while removing folder allocation")
-      setShowToast(true)
-    }
+    // Show success toast
+    setToastMessage("Folder allocation successfully removed")
+    setShowToast(true)
   }
 
   // Handle Program Selection
@@ -164,16 +115,8 @@ export function FolderAllocation() {
       )}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-semibold mb-2">Main Folder Allocation</h2>
+          <h2 className="text-2xl font-semibold mb-2">Main Folder Allocation for {course.title}</h2>
           <div className="flex items-center gap-4">
-            {/* Course Label */}
-            <div className="space-y-1">
-              <label className="font-semibold">Course:</label>
-              <span>
-                {courseName} ({selectedProgramTitle})
-              </span>
-            </div>
-            
             {/* Program Dropdown */}
             <Select value={selectedProgramShortName} onValueChange={handleProgramChange}>
               <SelectTrigger className="w-32">
@@ -189,36 +132,30 @@ export function FolderAllocation() {
             </Select>
           </div>
         </div>
-        <Button variant="outline" onClick={() => setShowToast(true)}>
-          <Bell className="h-4 w-4 mr-2" />
-          Notifications
-        </Button>
       </div>
       <div className="rounded-lg border bg-white">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-24">Id</TableHead>
+              <TableHead className="w-24">Teacher ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="w-24">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students.map((student) => {
-              const isAllocated = allocatedFolders.includes(student.id)
+            {teachers.map((teacher) => {
+              const isAllocated = allocatedFolders.includes(teacher.Id)
               return (
-                <TableRow key={student.id}>
-                  <TableCell>{teacherid}</TableCell>
-                  <TableCell>{teacherName}</TableCell>
+                <TableRow key={teacher.Id}>
+                  <TableCell>{teacher.Id}</TableCell>
+                  <TableCell>{teacher.Name}</TableCell>
                   <TableCell>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={handleDeleteFolder}
+                      onClick={() => handleDeleteFolder(teacher.Id)}
                       className={`h-8 w-8 p-0 ${
-                        isAllocated 
-                          ? "text-red-600 hover:text-red-700 hover:bg-red-50"
-                          : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        isAllocated ? "text-red-600 hover:text-red-700 hover:bg-red-50" : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                       }`}
                     >
                       {isAllocated ? (

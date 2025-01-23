@@ -150,8 +150,8 @@ export default function DetailsPage({ params }: { params: Promise<{ id: string }
                     </tr>
                   </thead>
                   <tbody>
-  {item.Values.map((value) => (
-    <tr key={value.S2Id}>
+  {item.Values.map((value, index) => (
+    <tr key={`${value.S2Id}-${index}`}>
       <td className="border px-4 py-2">{value.S2Name}</td>
       <td className="border px-4 py-2">
         {value.FilePath ? (
@@ -178,6 +178,7 @@ export default function DetailsPage({ params }: { params: Promise<{ id: string }
     </tr>
   ))}
 </tbody>
+
 
                 </table>
               </div>

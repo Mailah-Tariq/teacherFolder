@@ -1,5 +1,3 @@
-
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -15,8 +13,12 @@ import {
 } from "../components/ui/dropdown-menu"
 import { ChevronDown } from 'lucide-react'
 
-// API URL
-const API_URL = "https://localhost:44338/api/hod/TeachersForCourse?courseId=30"
+// Program to progId mapping
+const programIdMap: { [key: string]: number } = {
+  "BCS": 1,
+  "BAI": 2,
+  "BSE": 3,
+}
 
 export default function PLOs() {
   const [selectedProgram, setSelectedProgram] = useState<string>("BCS") // Default selected program
@@ -26,12 +28,21 @@ export default function PLOs() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Use programIdMap to get the correct programId based on selectedProgram
+        const progId = programIdMap[selectedProgram]
+        if (!progId) {
+          console.error("Invalid program selected");
+          return;
+        }
+
+        // Dynamically construct the API URL based on selected program's progId
+        const API_URL = `https://localhost:44338/api/hod/GetProgramPLO?progId=${progId}`
+        
         const response = await fetch(API_URL)
         const data = await response.json()
 
-        // Filter data based on the selected program
-        const filtered = data.filter((item: any) => item.ProgramShortName === selectedProgram)
-        setFilteredData(filtered)
+        // Filter data based on the selected program (if needed)
+        setFilteredData(data)
       } catch (error) {
         console.error("Error fetching data:", error)
       }
@@ -75,7 +86,7 @@ export default function PLOs() {
             <PLOTable plos={filteredData.map(item => ({
               id: item.Id,
               title: item.Name,
-              description: item.ProgramTitle
+              description: item.Description // Adjust the mapping based on your API response structure
             }))} />
           </div>
         </main>

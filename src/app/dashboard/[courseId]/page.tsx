@@ -97,6 +97,14 @@ export default function CourseDetailPage({
                 courseInSoSId={courseInSoS}
               />
             </div>
+            <div onClick={() => handleClick("topic-clos")}>
+              <CourseSection
+                icon={<Settings className="w-6 h-6 text-purple-500" />}
+                title="Topic CLOs"
+                view="topic-clos"
+                courseInSoSId={courseInSoS}
+              />
+            </div>
             <div onClick={() => handleClick("topics")}>
               <CourseSection
                 icon={<ListTodo className="w-6 h-6 text-emerald-500" />}

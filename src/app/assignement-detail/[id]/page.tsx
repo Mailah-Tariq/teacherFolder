@@ -1,15 +1,14 @@
-'use client';
-
+'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '../../components/header';
 import { Sidebar } from '../../components/sidebar';
-
 interface TabData {
   Key: {
     S1Id: number;
     S1Name: string;
     FilePathKey: string;
+    ContentId:number;
   };
   Values: {
     S2Id: number;
@@ -47,6 +46,10 @@ export default function AssignmentDetail() {
 
     fetchTabData();
   }, []);
+  const navigateToDetails = (contentId: number) => {
+    localStorage.setItem('ContentId', contentId.toString()); // Store ContentId in localStorage
+    router.push(`/assignment-content-detail/${contentId}`); // Navigate to the next page
+  };
 
   const handleFileChange = (keyId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -69,7 +72,7 @@ export default function AssignmentDetail() {
     const UPLOAD_API_URL = `${localStorage.getItem('baseURL')}/Folder/UploadFolderContent`;
 
     const formData = new FormData();
-    formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
+   // formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
     formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
     formData.append('FolderCheckListId', localStorage.getItem('FolderChecklistId') ?? '');
     formData.append('DisplayName', file.name);
@@ -88,14 +91,18 @@ export default function AssignmentDetail() {
         alert('Failed to upload file.');
         return;
       }
+      const responseData = await response.json();
 
+      
+      if (responseData && responseData.Id) {
+        localStorage.setItem('ContentId', responseData.Id.toString());
+      }
       alert(`File uploaded successfully for Key ID: ${keyId}`);
       setSelectedFiles((prevFiles) => ({
         ...prevFiles,
         [keyId]: null,
       }));
 
-      // Refresh the tab data to ensure FilePath is updated
       await fetchTabData();
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -114,6 +121,9 @@ export default function AssignmentDetail() {
     } finally {
       setLoading(false);
     }
+  };
+  const navigateToMarks = () => {
+    router.push('/marks'); // Redirect to marks.tsx page
   };
 
   return (
@@ -148,18 +158,18 @@ export default function AssignmentDetail() {
                     >
                       Upload
                     </button>
+                   
                   </div>
                 </div>
-                {item.Values.some((subItem) => subItem.FilePath) && (
-                  <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    onClick={() => {
-                      const filePath = item.Values.find((subItem) => subItem.FilePath)?.FilePath;
-                      if (filePath) window.open(filePath, '_blank');
-                    }}
-                  >
-                    Details
-                  </button>
+                {item.Key.FilePathKey && (
+                 <button
+                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                // onClick={() => navigateToDetails(item.Key.ContentId)} // Pass ContentId dynamically
+                onClick={navigateToMarks} // Navigate to marks.tsx
+
+               >
+                 Details
+               </button>
                 )}
               </div>
             ))
