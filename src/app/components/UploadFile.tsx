@@ -12,7 +12,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderCheckListId, onSuccess })
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const courseInSOSId = localStorage.getItem('CourseInSOSId') || "";
  
-
+const cid=`localStorage.getItem('CourseInSOSId')`
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files ? event.target.files[0] : null;
@@ -51,7 +51,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ folderCheckListId, onSuccess })
   
       const result = await response.json();
       console.log("File uploaded successfully:", result);
-
+   console.log(result);
       // Show success toast notification
       toast.success("File uploaded successfully!");
 

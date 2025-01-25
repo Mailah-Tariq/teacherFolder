@@ -50,6 +50,7 @@ export default function TopicCLos() {
      fetchTopics();
    }, []);
  
+   
    const handleCheckboxChange = async (topicId: number, cloId: number, isChecked: boolean) => {
     console.log('Checkbox Change:', { topicId, cloId, isChecked }); // Debug log
   

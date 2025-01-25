@@ -43,17 +43,17 @@ export function Sidebar({ className }: SidebarProps) {
             </Button>
            
             <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
-              <Link href="#">
+              <Link href="/folder">
                 <FolderClosed className="mr-2 h-4 w-4" />
-                Completed Folders
+                Check Folders
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
+            {/* <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
               <Link href="#">
                 <FolderOpen className="mr-2 h-4 w-4" />
                 Incompleted Folders
               </Link>
-            </Button>
+            </Button> */}
           
           </div>
         </div>

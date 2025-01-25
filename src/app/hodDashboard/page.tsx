@@ -9,52 +9,47 @@ import { FolderAllocation } from "../component1/folder-allocation"; // Assuming 
 type Course = {
   title: string;
   href: string;
+  [key: string]: any; // Accommodates additional properties from API response
 };
 
 export default function Dashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null); // State to track selected course
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null); 
   const API_URL = `${localStorage.getItem("baseURL")}hod/GetCoursesList`;
 
   useEffect(() => {
-    // Check if the data is already in localStorage
-    const storedCourses = localStorage.getItem("courses");
-    if (storedCourses) {
-      // If data exists in localStorage, parse it and set it to state
-      setCourses(JSON.parse(storedCourses));
-    } else {
-      // If no data in localStorage, fetch it from API
-      const fetchCourses = async () => {
-        try {
-          const response = await fetch(API_URL);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-
-          // Transform data into the required format
-          const formattedCourses: Course[] = data.map((course: { Title: string }) => ({
-            title: course.Title, // Use the 'Title' field from the API
-            href: "#", // Placeholder href (can be updated as needed)
-          }));
-
-          // Store the fetched data in localStorage
-          localStorage.setItem("courses", JSON.stringify(formattedCourses));
-
-          // Set the courses state
-          setCourses(formattedCourses);
-        } catch (err: any) {
-          setError(err.message || "Failed to fetch courses");
+    // Fetch courses from API
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      };
+        const data = await response.json();
 
-      fetchCourses();
-    }
+        // Store the full API response in local storage
+        localStorage.setItem("courses", JSON.stringify(data));
+        console.log("API response stored in localStorage:", data); // Log the API response
+
+        // Format and set the courses in state
+        const formattedCourses: Course[] = data.map((course: { Title: string }) => ({
+          title: course.Title,
+          href: "#",
+          ...course, // Include the full course object
+        }));
+        setCourses(formattedCourses);
+      } catch (err: any) {
+        console.error("Error fetching courses:", err);
+        setError(err.message || "Failed to fetch courses");
+      }
+    };
+
+    fetchCourses();
   }, [API_URL]);
 
   const handleCourseClick = (course: Course) => {
-    setSelectedCourse(course); // Set the selected course when clicked
+    setSelectedCourse(course);
   };
 
   return (

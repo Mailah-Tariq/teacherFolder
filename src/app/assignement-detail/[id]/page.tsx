@@ -164,8 +164,8 @@ export default function AssignmentDetail() {
                 {item.Key.FilePathKey && (
                  <button
                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                // onClick={() => navigateToDetails(item.Key.ContentId)} // Pass ContentId dynamically
-                onClick={navigateToMarks} // Navigate to marks.tsx
+                onClick={() => navigateToDetails(item.Key.ContentId)} // Pass ContentId dynamically
+                // onClick={navigateToMarks} // Navigate to marks.tsx
 
                >
                  Details
