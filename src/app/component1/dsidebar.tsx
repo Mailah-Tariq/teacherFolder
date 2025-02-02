@@ -35,17 +35,17 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="px-3 py-2">
           <div className="space-y-1">
             <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
-              <Link href="/hodDashboard">
+              <Link href="/">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 Dashboard
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
+            {/* <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
               <Link href="/plos">
                 <GraduationCap className="mr-2 h-4 w-4" />
                 PLOs
               </Link>
-            </Button>
+            </Button> */}
             <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
               <Link href="/folder-allocation">
                 <CheckCircle className="mr-2 h-4 w-4" />

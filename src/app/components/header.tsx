@@ -36,24 +36,6 @@ export function Header() {
           <MoreVertical className="w-6 h-6" />
         </button>
 
-        {/* Dropdown Menu */}
-        {menuOpen && (
-          <div className="absolute top-12 right-0 bg-white border shadow-lg rounded-md w-48 z-10">
-            <ul className="text-sm">
-              <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                <Link href="/hodDashboard">
-                  Dr. Munir Ahmad
-                </Link>
-              </li>
-              <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                <Link href="/dashboard">
-                  Teacher Dashboard
-                </Link>
-              </li>
-              
-            </ul>
-          </div>
-        )}
       </div>
     </header>
   );

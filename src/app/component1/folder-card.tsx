@@ -6,6 +6,7 @@ interface FolderCardProps {
   status: string;
   courseCode: string;
   sectionTitle: string;
+  ProgramShortName:string;
   handleClick: () => void; // Function to handle click
 }
 
@@ -15,6 +16,7 @@ export default function FolderCard({
   status,
   courseCode,
   sectionTitle,
+  ProgramShortName,
   handleClick,
 }: FolderCardProps) {
   return (
@@ -26,6 +28,7 @@ export default function FolderCard({
       <p className="text-sm text-gray-500">Teacher: {teacherName}</p>
       <p className="text-sm text-gray-500">Code: {courseCode}</p>
       <p className="text-sm text-gray-500">Section: {sectionTitle}</p>
+      <p className="text-sm text-gray-500">Program: {ProgramShortName}</p>
       <p className={`text-sm font-medium ${status === "Completed" ? "text-green-600" : "text-red-600"}`}>
         Status: {status}
       </p>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Header } from "../component1/header";
 import { Sidebar } from "../component1/sidebar";
 import { CourseCard } from "../component1/course-card";
-import { FolderAllocation } from "../component1/folder-allocation"; // Assuming FolderAllocation component is in this path
+import { FolderAllocation } from "../component1/folder-allocation";
 
 type Course = {
   title: string;
@@ -15,7 +15,7 @@ type Course = {
 export default function Dashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null); 
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const API_URL = `${localStorage.getItem("baseURL")}hod/GetCoursesList`;
 
   useEffect(() => {
@@ -30,12 +30,11 @@ export default function Dashboard() {
 
         // Store the full API response in local storage
         localStorage.setItem("courses", JSON.stringify(data));
-        console.log("API response stored in localStorage:", data); // Log the API response
 
         // Format and set the courses in state
-        const formattedCourses: Course[] = data.map((course: { Title: string }) => ({
+        const formattedCourses: Course[] = data.map((course: { Title: string; CourseCode: string }) => ({
           title: course.Title,
-          href: "#",
+          href: "#", // Link is kept as '#' for now
           ...course, // Include the full course object
         }));
         setCourses(formattedCourses);
@@ -49,7 +48,11 @@ export default function Dashboard() {
   }, [API_URL]);
 
   const handleCourseClick = (course: Course) => {
-    setSelectedCourse(course);
+    // Store selected course in localStorage
+    localStorage.setItem("selectedCourse", JSON.stringify(course));
+
+    // Navigate to the new page to show teachers for the selected course
+    window.location.href = "/teachers"; // This will navigate to the '/teachers' page
   };
 
   return (
@@ -73,7 +76,10 @@ export default function Dashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {courses.map((course) => (
-                    <div key={course.title} onClick={() => handleCourseClick(course)}>
+                    <div
+                      key={course.CourseCode}
+                      onClick={() => handleCourseClick(course)} // Call the click handler
+                    >
                       <CourseCard {...course} />
                     </div>
                   ))}

@@ -12,7 +12,7 @@ interface Question {
 
 export default function UploadSectionContent() {
   const router = useRouter();
-  const [numberOfQuestions, setNumberOfQuestions] = useState<number | undefined>();
+  const [numberOfQuestions, setNumberOfQuestions] = useState<number>(1); // Default to 1 to avoid undefined
   const [questions, setQuestions] = useState<Question[]>([{ QNo: 1, Marks: 0, CLOS: [] }]);
   const [contentId, setContentId] = useState<number | null>(null);
 
@@ -36,6 +36,7 @@ export default function UploadSectionContent() {
       newQuestions.splice(value);
     }
     setQuestions(newQuestions);
+    setNumberOfQuestions(value); // Update the numberOfQuestions state
   };
 
   // Handle Marks change
@@ -54,37 +55,34 @@ export default function UploadSectionContent() {
       .filter((v) => !isNaN(v)); 
     setQuestions(updatedQuestions);
   };
-  
 
   const handleSubmit = async () => {
     if (!contentId) {
       alert("Content ID is missing. Please ensure it is set correctly.");
       return;
     }
-
+  
     console.log("Questions to submit:", questions);
-
-    const payload = {
-      contentId: contentId,
-      questions: questions.map((question) => ({
-        QNo: question.QNo,
-        Marks: question.Marks,
-        CLOS: question.CLOS.map(String), // Ensure CLOs are sent as strings
-      })),
-    };
-
+  
+    // Prepare the data to send in the body
+    const requestPayload = questions.map((question, index) => ({
+      Id: index + 1, // Assuming Id is equivalent to the index + 1 (or any other way to retrieve it)
+      Marks: question.Marks,
+      CLOIds: question.CLOS, // Send the CLO IDs as an array of integers
+    }));
+  
     try {
       const response = await fetch(
-        `${localStorage.getItem('baseURL')}/folder/UploadContentDetails?contentId=${contentId}`,
+        `${localStorage.getItem('baseURL')}/folder/UploadFolderContentDetail?contentId=${contentId}&numberOfQuestions=${numberOfQuestions}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload.questions),
+          body: JSON.stringify(requestPayload), // Send question details in body
         }
       );
-
+  
       if (response.ok) {
         alert("Data submitted successfully!");
       } else {
@@ -97,7 +95,6 @@ export default function UploadSectionContent() {
       alert("An error occurred during submission.");
     }
   };
-
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />

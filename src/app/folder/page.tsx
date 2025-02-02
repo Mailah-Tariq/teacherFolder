@@ -13,6 +13,7 @@ interface Course {
   CourseCode: string;
   SectionTitle: string;
   id:number;
+  ProgramShortName:string;
 }
 
 export default function Folder() {
@@ -107,6 +108,7 @@ export default function Folder() {
  status={course.Status ? "Completed" : "Incomplete"}
  courseCode={course.CourseCode}
  sectionTitle={course.SectionTitle}
+ ProgramShortName={course.ProgramShortName}
  handleClick={() => handleCardClick(course.id)} // Pass `allocId` to the function
 />
 ))}
