@@ -17,7 +17,6 @@ interface FolderContent {
   Id: number;
   Name: string;
   Flag: number;
-  FolderContent: any[]; // You can ignore this field for now since you don't need to display it
 }
 
 interface LectureFile {
@@ -27,14 +26,17 @@ interface LectureFile {
 
 export function MainFolderView() {
   const [folderContents, setFolderContents] = useState<FolderContent[]>([]);
-  const [isUploadOpen, setIsUploadOpen] = useState(false); // State to manage modal visibility
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null); // Store selected FolderCheckListId
-  const [lectureFiles, setLectureFiles] = useState<LectureFile[]>([]); // Store the fetched lecture files
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false); // Manage the details modal visibility
-  const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
-  const title = `${storedCourse.CourseTitle}`;
-  const courseId = storedCourse?.courseId ?? null; // Default to null if not found
-  console.log(courseId); // Verify the value of courseId
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+  const [lectureFiles, setLectureFiles] = useState<LectureFile[]>([]);
+  const [uploadedFolders, setUploadedFolders] = useState<number[]>([]); // Track uploaded folders
+
+  const storedCourseInfo = JSON.parse(localStorage.getItem("courseInfo") || "{}");
+  const title = `${storedCourseInfo.CourseTitle}`;
+  const title1 = `${storedCourseInfo.CourseInSOSId}`;
+  const courseInfoId = storedCourseInfo?.courseInfoId ?? null; // Use courseInfoId instead of courseId
+
+  console.log(courseInfoId); // Debugging
 
   // Fetch folder contents
   useEffect(() => {
@@ -47,34 +49,47 @@ export function MainFolderView() {
           throw new Error("Failed to fetch data");
         }
         const data = await response.json();
-        setFolderContents(data); // Save the response in state
+        setFolderContents(data);
+        console.log("API data", data);
       } catch (error) {
         console.error(error);
       }
     }
     fetchFolderContents();
-  }, []); // Empty dependency array to run the effect once when the component mounts
-
-  // Handle view details button click
-  const handleViewDetails = async (checkListId: number) => {
-    if (!courseId) {
-      console.error("Course ID is missing!");
+  }, []);
+console.log("store course",storedCourseInfo)
+  // Fetch lecture files for a specific folder
+  const fetchLectureFiles = async (checkListId: number) => {
+    if (!courseInfoId) {
+      console.error("Course Info ID is missing!");
       return;
     }
-
+  
     try {
       const response = await fetch(
-        `https://localhost:44338/api/teacher/GetLectureFiles?courseId=${storedCourse.courseId}&checkListId=${checkListId}`
+        `https://localhost:44338/api/teacher/GetLectureFiles?courseInfoId=${title1}&checkListId=${checkListId}`
       );
       if (!response.ok) {
+        const errorMessage = await response.text(); // Log the error response
+        console.error("Error fetching lecture files:", errorMessage);
         throw new Error("Failed to fetch lecture files");
       }
-      const files = await response.json();
-      setLectureFiles(files); // Store the fetched lecture files in state
-      setIsDetailsOpen(true); // Open the details modal
+  
+      const files: LectureFile[] = await response.json();
+      setLectureFiles(files);
+  
+      // If at least one file has a FilePath, store the folder ID
+      if (files.some((file) => file.FilePath)) {
+        setUploadedFolders((prev) => [...prev, checkListId]); // Mark folder as uploaded
+      }
     } catch (error) {
-      console.error(error);
+      console.error("API Error:", error);
     }
+  };
+
+  // Handle view details button click
+  const handleViewDetails = (checkListId: number) => {
+    fetchLectureFiles(checkListId); // Fetch and update state
   };
 
   // Handle upload button click
@@ -83,13 +98,17 @@ export function MainFolderView() {
       console.error("Folder CheckList ID is missing.");
       return;
     }
-    setSelectedFolderId(folderCheckListId); // Set the selected folder ID for upload
-    setIsUploadOpen(true); // Open the upload modal
+    setSelectedFolderId(folderCheckListId);
+    setIsUploadOpen(true);
   };
 
-  // Handle upload success (refresh or close modal)
+  // Handle upload success
   const handleUploadSuccess = () => {
-    setIsUploadOpen(false); // Close the modal after a successful upload
+    setIsUploadOpen(false);
+    if (selectedFolderId !== null) {
+      fetchLectureFiles(selectedFolderId); // Refresh file list after upload
+      setUploadedFolders((prev) => [...prev, selectedFolderId]); // Add folder ID to uploaded list
+    }
   };
 
   return (
@@ -114,14 +133,17 @@ export function MainFolderView() {
                 <TableCell>{item.Name}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    {/* View Details Button */}
-                    <Button
-                      size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 h-8 w-8 p-0"
-                      onClick={() => handleViewDetails(item.Id)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    {/* Show "View Details" only if a file has been uploaded */}
+                    {uploadedFolders.includes(item.Id) && (
+                      <Button
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-700 h-8 w-8 p-0"
+                        onClick={() => handleViewDetails(item.Id)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    )}
+
                     {/* Upload Button */}
                     <Button
                       size="sm"
@@ -143,8 +165,8 @@ export function MainFolderView() {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <UploadFile
-              folderCheckListId={selectedFolderId} // Pass the folderCheckListId to UploadFile
-              onSuccess={handleUploadSuccess} // Handle success callback
+              folderCheckListId={selectedFolderId}
+              onSuccess={handleUploadSuccess}
             />
           </div>
         </div>

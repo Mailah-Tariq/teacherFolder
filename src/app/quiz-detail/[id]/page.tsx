@@ -71,7 +71,7 @@ export default function QuizDetail() {
     const formData = new FormData();
     // formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
     formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
-    formData.append('FolderCheckListId', localStorage.getItem('FolderChecklistId') ?? '');
+    formData.append('FolderCheckListId', localStorage.getItem('checklistId') ?? '');
     formData.append('DisplayName', file.name);
     formData.append('FolderSubCheckListId', keyId.toString());
     formData.append('File', file);

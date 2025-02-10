@@ -2,57 +2,55 @@
 import React, { useState, useEffect } from "react";
 import { Header } from "@/app/components/header";
 import { Sidebar } from "@/app/components/sidebar";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 interface Question {
   QNo: number;
   Marks: number;
-  CLOS: number[]; // CLO IDs as integers
+  CLOS: number[];
 }
 
 export default function UploadSectionContent() {
   const router = useRouter();
-  const [numberOfQuestions, setNumberOfQuestions] = useState<number>(1); // Default to 1 to avoid undefined
+  const params = useParams();
+  const contentId = params?.contentId ? parseInt(params.contentId as string, 10) : null;
+
+  const [numberOfQuestions, setNumberOfQuestions] = useState<number>(1);
   const [questions, setQuestions] = useState<Question[]>([{ QNo: 1, Marks: 0, CLOS: [] }]);
-  const [contentId, setContentId] = useState<number | null>(null);
 
   useEffect(() => {
-    const storedContentId = localStorage.getItem("ContentId");
-    console.log("Retrieved ContentId from localStorage:", storedContentId); // Debugging
-    if (storedContentId) {
-      setContentId(parseInt(storedContentId, 10));
-    } else {
-      console.warn("ContentId is not found in localStorage.");
-    }
-  }, []);
+    console.log("Retrieved ContentId from URL:", contentId);
+  }, [contentId]);
 
   const handleNumberOfQuestionsChange = (value: number) => {
+    if (value < 1) return;
+
     const newQuestions = [...questions];
+
     if (value > newQuestions.length) {
       for (let i = newQuestions.length; i < value; i++) {
         newQuestions.push({ QNo: i + 1, Marks: 0, CLOS: [] });
       }
-    } else if (value < newQuestions.length) {
+    } else {
       newQuestions.splice(value);
     }
+
     setQuestions(newQuestions);
-    setNumberOfQuestions(value); // Update the numberOfQuestions state
+    setNumberOfQuestions(value);
   };
 
-  // Handle Marks change
   const handleMarksChange = (index: number, value: string) => {
+    const parsedValue = value.trim() === "" ? 0 : parseInt(value, 10);
     const updatedQuestions = [...questions];
-    updatedQuestions[index].Marks = parseInt(value, 10);
+    updatedQuestions[index].Marks = isNaN(parsedValue) ? 0 : parsedValue;
     setQuestions(updatedQuestions);
   };
 
-  // Handle CLOs change
   const handleCLOsChange = (index: number, value: string) => {
     const updatedQuestions = [...questions];
     updatedQuestions[index].CLOS = value
-      .split(",") 
-      .map((v) => parseInt(v.trim(), 10)) 
-      .filter((v) => !isNaN(v)); 
+      ? value.split(",").map((v) => parseInt(v.trim(), 10)).filter((v) => !isNaN(v))
+      : [];
     setQuestions(updatedQuestions);
   };
 
@@ -61,40 +59,34 @@ export default function UploadSectionContent() {
       alert("Content ID is missing. Please ensure it is set correctly.");
       return;
     }
-  
-    console.log("Questions to submit:", questions);
-  
-    // Prepare the data to send in the body
-    const requestPayload = questions.map((question, index) => ({
-      Id: index + 1, // Assuming Id is equivalent to the index + 1 (or any other way to retrieve it)
-      Marks: question.Marks,
-      CLOIds: question.CLOS, // Send the CLO IDs as an array of integers
-    }));
-  
+
+    console.log("Submitting Questions:", questions);
+
     try {
       const response = await fetch(
-        `${localStorage.getItem('baseURL')}/folder/UploadFolderContentDetail?contentId=${contentId}&numberOfQuestions=${numberOfQuestions}`,
+        `/folder/UploadContentDetails?contentId=${contentId}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(requestPayload), // Send question details in body
+          body: JSON.stringify(questions),
         }
       );
-  
+
       if (response.ok) {
         alert("Data submitted successfully!");
       } else {
-        const error = await response.json();
-        console.error("Error response from API:", error);
-        alert("Failed to submit data.");
+        const errorResponse = await response.text();
+        console.error("Error response from API:", errorResponse);
+        alert(`Failed to submit data: ${errorResponse}`);
       }
     } catch (error) {
       console.error("Error during submission:", error);
       alert("An error occurred during submission.");
     }
   };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
@@ -127,7 +119,6 @@ export default function UploadSectionContent() {
               <div key={index} className="mb-4">
                 <h3 className="text-sm font-semibold text-gray-700">Question {index + 1}</h3>
 
-                {/* Marks Input */}
                 <div className="mb-2">
                   <label className="block text-gray-600">Marks:</label>
                   <input
@@ -138,7 +129,6 @@ export default function UploadSectionContent() {
                   />
                 </div>
 
-                {/* CLOs Input */}
                 <div>
                   <label className="block text-gray-600">CLOS (comma-separated):</label>
                   <input

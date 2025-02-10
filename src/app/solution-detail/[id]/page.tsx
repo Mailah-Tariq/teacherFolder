@@ -27,7 +27,7 @@ export default function SolutionPage() {
   const baseURL = localStorage.getItem('baseURL');
   const allocationId = localStorage.getItem('allocationId');
   const courseInSOSId = localStorage.getItem('CourseInSOSId');
-  const folderChecklistId = localStorage.getItem('FolderChecklistId');
+  const folderChecklistId = localStorage.getItem('checklistId');
 
   const TAB_API_URLS = {
     Assignment: `${baseURL}teacher/GetSolutions?type=assi&allocationId=${allocationId}`,
@@ -46,12 +46,7 @@ export default function SolutionPage() {
 
         console.log("API Response Data: ", data);
 
-        const formattedData = data.map(item => ({
-          ...item,
-          FilePath: item.FilePath || 'No File' 
-        }));
-
-        setTabData(Array.isArray(formattedData) ? formattedData : []);
+        setTabData(Array.isArray(data) ? data : []);
       } catch (err) {
         setError((err as Error).message);
       } finally {
@@ -110,19 +105,21 @@ export default function SolutionPage() {
         throw new Error('Failed to upload file.');
       }
 
-      setSuccessMessage(`File uploaded successfully for ${modalData.S2Name}.`);
+      const uploadedFilePath = `${baseURL}/uploads/${selectedFile.name}`;
 
-      setTabData((prev) => {
-        if (prev) {
-          return [...prev];
-        }
-        return null;
+      // Update the specific item's FilePath in tabData
+      setTabData((prevData) => {
+        return prevData?.map((item) =>
+          item.S2Id === modalData.S2Id ? { ...item, FilePath: uploadedFilePath } : item
+        ) || [];
       });
+
+      setSuccessMessage(`File uploaded successfully for ${modalData.S2Name}.`);
 
       setTimeout(() => {
         setModalData(null);
         setSelectedFile(null);
-      }, 1000); 
+      }, 1000);
     } catch (error) {
       alert('An error occurred while uploading the file.');
     } finally {
@@ -156,8 +153,13 @@ export default function SolutionPage() {
             tabData?.map((item) => (
               <div key={item.S2Id} className="mb-4 border p-4 rounded shadow bg-white">
                 <h3 className="text-xl font-bold mb-4">{item.S2Name}</h3>
-                {item.FilePath && item.FilePath !== 'No File' ? (
-                  <button className="px-4 py-2 bg-blue-500 text-white rounded">Detail</button>
+                {item.FilePath ? (
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => window.open(item.FilePath as string, '_blank')}
+                  >
+                    View Details
+                  </button>
                 ) : (
                   <button
                     className="px-4 py-2 bg-green-500 text-white rounded"

@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from '../components/ui/card';
 import { cn } from '../lib/utils';
 
-// Adjusted interface to match API response structure
 interface SubTopic {
   SubTopicId: number;
   SubTopicName: string;
@@ -21,45 +20,67 @@ interface Topic {
 export default function TopicCLos() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id'); 
- const [topics, setTopics] = useState<Topic[]>([]);
- const [isLoading, setIsLoading] = useState(true);
- const [error, setError] = useState<string | null>(null);
- const [selectedCLOs, setSelectedCLOs] = useState<{ topicId: number; cloId: number }[]>([]);
 
-   useEffect(() => {
-    
-     const fetchTopics = async () => {
-       try {
-         const response = await fetch(
-           `${localStorage.getItem('baseURL')}teacher/GetTopicsByCourseCode?CourseCode=${localStorage.getItem('CourseCode')}`
-         );
- 
-         if (!response.ok) {
-           throw new Error('Failed to fetch course topics.');
-         }
- 
-         const data = await response.json();
-         setTopics(data);
-       } catch (error: any) {
-         setError(error.message || 'An unknown error occurred.');
-       } finally {
-         setIsLoading(false);
-       }
-     };
- 
-     fetchTopics();
-   }, []);
- 
-   
-   const handleCheckboxChange = async (topicId: number, cloId: number, isChecked: boolean) => {
-    console.log('Checkbox Change:', { topicId, cloId, isChecked }); // Debug log
-  
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCLOs, setSelectedCLOs] = useState<{ topicId: number; cloId: number }[]>([]);
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const response = await fetch(
+          `${localStorage.getItem('baseURL')}teacher/GetTopicsByCourseCode?CourseCode=${localStorage.getItem('CourseCode')}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch course topics.');
+        }
+
+        const data = await response.json();
+        setTopics(data);
+
+        // After fetching topics, load CLO selections
+        fetchSelectedCLOs(data);
+      } catch (error: any) {
+        setError(error.message || 'An unknown error occurred.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTopics();
+  }, []);
+
+  // Fetch previously selected CLOs for all topics
+  const fetchSelectedCLOs = async (topics: Topic[]) => {
+    try {
+      let selectedCLOsData: { topicId: number; cloId: number }[] = [];
+
+      for (const topic of topics) {
+        const response = await fetch(`${localStorage.getItem('baseURL')}teacher/GetTopicCLOs?topicId=${topic.TopicId}`);
+        
+        if (response.ok) {
+          const data: { TopicId: number; CLOId: number }[] = await response.json();
+          selectedCLOsData = [...selectedCLOsData, ...data.map(d => ({ topicId: d.TopicId, cloId: d.CLOId }))];
+        }
+      }
+
+      setSelectedCLOs(selectedCLOsData);
+    } catch (error) {
+      console.error('Error fetching selected CLOs:', error);
+    }
+  };
+
+  const handleCheckboxChange = async (topicId: number, cloId: number, isChecked: boolean) => {
+    console.log('Checkbox Change:', { topicId, cloId, isChecked });
+
     const updatedSelections = isChecked
       ? [...selectedCLOs, { topicId, cloId }]
       : selectedCLOs.filter((selection) => !(selection.topicId === topicId && selection.cloId === cloId));
-  
+
     setSelectedCLOs(updatedSelections);
-  
+
     try {
       const response = await fetch(`${localStorage.getItem('baseURL')}teacher/SaveTopicCLO`, {
         method: 'POST',
@@ -68,7 +89,7 @@ export default function TopicCLos() {
         },
         body: JSON.stringify({ topicId, cloId, isChecked }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to update CLO selection.');
       }
@@ -76,6 +97,7 @@ export default function TopicCLos() {
       console.error('Error saving CLO selection:', error);
     }
   };
+
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -88,7 +110,6 @@ export default function TopicCLos() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="border border-gray-200 px-4 py-2 text-left">Topic Name</th>
-                {/* <th className="border border-gray-200 px-4 py-2 text-left">SubTopics</th> */}
                 <th className="border border-gray-200 px-4 py-2 text-left">CLO1</th>
                 <th className="border border-gray-200 px-4 py-2 text-left">CLO2</th>
                 <th className="border border-gray-200 px-4 py-2 text-left">CLO3</th>
@@ -107,30 +128,20 @@ export default function TopicCLos() {
               ) : (
                 topics.map((topic, index) => (
                   <tr key={topic.TopicId} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-gray-50')}>
-                  <td className="border border-gray-200 px-4 py-2 font-medium">{topic.TopicName}</td>
-                  {/* <td className="border border-gray-200 px-4 py-2">
-                    {topic.SubTopics.length > 0 ? (
-                      <ul className="list-disc pl-4">
-                        {topic.SubTopics.map((subTopic) => (
-                          <li key={subTopic.SubTopicId}>
-                            {subTopic.SubTopicName} (Week {subTopic.WeekNo})
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span>No SubTopics</span>
-                    )}
-                  </td> */}
-                  {[1, 2, 3, 4].map((clo) => (
-                    <td key={clo} className="border border-gray-200 px-4 py-2 text-center">
-                      <input
-                        type="checkbox"
-                        className="form-checkbox"
-                        onChange={(e) => handleCheckboxChange(topic.TopicId, clo, e.target.checked)}
-                      />
-                    </td>
-                  ))}
-                </tr>
+                    <td className="border border-gray-200 px-4 py-2 font-medium">{topic.TopicName}</td>
+                    {[1, 2, 3, 4].map((clo) => (
+                      <td key={clo} className="border border-gray-200 px-4 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          className="form-checkbox"
+                          checked={selectedCLOs.some(
+                            (selection) => selection.topicId === topic.TopicId && selection.cloId === clo
+                          )}
+                          onChange={(e) => handleCheckboxChange(topic.TopicId, clo, e.target.checked)}
+                        />
+                      </td>
+                    ))}
+                  </tr>
                 ))
               )}
             </tbody>

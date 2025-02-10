@@ -32,12 +32,10 @@ const cid=`localStorage.getItem('CourseInSOSId')`
   
     const formData = new FormData();
     formData.append("DisplayName", displayName);
-     formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
-     formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
-     formData.append('FolderCheckListId', localStorage.getItem('FolderChecklistId') ?? '');
-     formData.append('File', file);
-    
-    console.log("FormData object:", formData);  
+    formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
+    formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
+    formData.append('FolderCheckListId', folderCheckListId.toString()); // ✅ Use passed checklist ID
+    formData.append('File', file);
   
     try {
       const response = await fetch("https://localhost:44338/api/folder/UploadFolderContent", {
@@ -49,18 +47,10 @@ const cid=`localStorage.getItem('CourseInSOSId')`
         throw new Error("Failed to upload the file.");
       }
   
-      const result = await response.json();
-      console.log("File uploaded successfully:", result);
-   console.log(result);
-      // Show success toast notification
       toast.success("File uploaded successfully!");
-
-      // Call onSuccess callback
       onSuccess();
     } catch (error) {
       console.error("Error uploading file:", error);
-
-      // Show error toast notification
       toast.error("Error uploading file!");
     } finally {
       setIsUploading(false);

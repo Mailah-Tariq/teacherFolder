@@ -1,13 +1,13 @@
-"use client";
+import { ReactNode } from "react";
 
 interface FolderCardProps {
   title: string;
   teacherName: string;
-  status: string;
+  status: ReactNode; // Change string to ReactNode
   courseCode: string;
   sectionTitle: string;
-  ProgramShortName:string;
-  handleClick: () => void; // Function to handle click
+  ProgramShortName: string;
+  handleClick: () => void;
 }
 
 export default function FolderCard({
@@ -29,9 +29,7 @@ export default function FolderCard({
       <p className="text-sm text-gray-500">Code: {courseCode}</p>
       <p className="text-sm text-gray-500">Section: {sectionTitle}</p>
       <p className="text-sm text-gray-500">Program: {ProgramShortName}</p>
-      <p className={`text-sm font-medium ${status === "Completed" ? "text-green-600" : "text-red-600"}`}>
-        Status: {status}
-      </p>
+      <p className="text-sm font-medium">{status}</p> {/* Render status directly */}
     </div>
   );
 }

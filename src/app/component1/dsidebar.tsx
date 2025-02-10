@@ -40,12 +40,12 @@ export function Sidebar({ className }: SidebarProps) {
                 Dashboard
               </Link>
             </Button>
-            {/* <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
-              <Link href="/plos">
+            <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
+              <Link href="/assign-role">
                 <GraduationCap className="mr-2 h-4 w-4" />
-                PLOs
+                Assign Role
               </Link>
-            </Button> */}
+            </Button>
             <Button asChild variant="ghost" className="w-full justify-start text-white hover:text-white hover:bg-emerald-700">
               <Link href="/folder-allocation">
                 <CheckCircle className="mr-2 h-4 w-4" />

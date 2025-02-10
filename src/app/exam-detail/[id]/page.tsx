@@ -26,7 +26,7 @@ export default function ExamDetail() {
   const [selectedFiles, setSelectedFiles] = useState<{ [key: number]: File | null }>({});
   const storedCourse = JSON.parse(localStorage.getItem('course') || '{}');
   const title = `Exam for Course ${storedCourse.CourseTitle} ${storedCourse.ProgramShortName} ${storedCourse.SemesterNo}`;
-  const API_URL = `${localStorage.getItem('baseURL')}teacher/GetSamples?type=exam&allocationId=${localStorage.getItem('allocationId')}`
+  const API_URL = `${localStorage.getItem('baseURL')}teacher/GetSamples?type=exam&allocationId=${localStorage.getItem('allocationId')}`;
 
   useEffect(() => {
     const fetchTabData = async () => {
@@ -71,7 +71,7 @@ export default function ExamDetail() {
     const formData = new FormData();
     formData.append('CourseInSOSId', localStorage.getItem('CourseInSOSId') ?? '');
     formData.append('allocationId', localStorage.getItem('allocationId') ?? '');
-    formData.append('FolderCheckListId', localStorage.getItem('FolderChecklistId') ?? '');
+    formData.append('FolderCheckListId', localStorage.getItem('checklistId') ?? '');
     formData.append('DisplayName', file.name);
     formData.append('FolderSubCheckListId', keyId.toString());
     formData.append('File', file);
@@ -102,7 +102,6 @@ export default function ExamDetail() {
       alert('An error occurred while uploading the file.');
     }
   };
-
 
   const fetchTabData = async () => {
     try {
@@ -151,6 +150,8 @@ export default function ExamDetail() {
                     </button>
                   </div>
                 </div>
+
+                {/* Check if any sub-item has a valid file path */}
                 {item.Values.some((subItem) => subItem.FilePath) && (
                   <button
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -159,7 +160,7 @@ export default function ExamDetail() {
                       if (filePath) window.open(filePath, '_blank');
                     }}
                   >
-                    Details
+                    View Details
                   </button>
                 )}
               </div>

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Header } from "../component1/header";
-import { Sidebar } from "../component1/sidebar";
+import { Sidebar } from "../component1/dsidebar";
+
 import { CourseCard } from "../component1/course-card";
 import { FolderAllocation } from "../component1/folder-allocation";
 
@@ -19,7 +20,7 @@ export default function Dashboard() {
   const API_URL = `${localStorage.getItem("baseURL")}hod/GetCoursesList`;
 
   useEffect(() => {
-    // Fetch courses from API
+  
     const fetchCourses = async () => {
       try {
         const response = await fetch(API_URL);
@@ -35,7 +36,7 @@ export default function Dashboard() {
         const formattedCourses: Course[] = data.map((course: { Title: string; CourseCode: string }) => ({
           title: course.Title,
           href: "#", // Link is kept as '#' for now
-          ...course, // Include the full course object
+          ...course, 
         }));
         setCourses(formattedCourses);
       } catch (err: any) {
